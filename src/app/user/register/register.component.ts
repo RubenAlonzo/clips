@@ -8,6 +8,12 @@ import { FormControl, FormGroup, Validators } from '@angular/forms'
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
+  showAlert = false;
+  alertMsg = 'Your account is being created';
+  alertColor = 'blue'
+
+
+
   registerForm = new FormGroup({
     name: new FormControl('', [
       Validators.required,
@@ -37,6 +43,8 @@ export class RegisterComponent {
   });
 
   register(){
-    console.log("Registered")
+    this.showAlert = true;
+    this.alertMsg = 'Your account is being created';
+    this.alertColor = 'blue'
   }
 }
