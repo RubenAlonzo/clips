@@ -29,4 +29,8 @@ placeholder="Enter Name" />
     Password must be at least 8 characters long,
     have 1 uppercase, 1 lowercase and 1 number
   </p>
+  <p *ngIf="control.errors?.['noMatch']"
+    class="text-red-400">
+    Password do not match
+  </p>
 </ng-container>
