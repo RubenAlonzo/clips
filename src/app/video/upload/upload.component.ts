@@ -1,8 +1,12 @@
 import { Component } from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { last } from 'rxjs';
+import { last, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
+import firebase from 'firebase/compat/app';
+import { ClipService } from 'src/app/services/clip.service';
+
 
 @Component({
   selector: 'app-upload',
@@ -19,8 +23,15 @@ export class UploadComponent {
   file: File | null = null
   percentage = 0
   showPercentage = false
+  user: firebase.User | null = null
 
-  constructor(private storage: AngularFireStorage){}
+  constructor(
+    private storage: AngularFireStorage,
+    private auth: AngularFireAuth,
+    private clipService: ClipService
+  ){
+    auth.user.subscribe(usr => this.user = usr)
+  }
 
   uploadForm = new FormGroup({
     title: new FormControl('', {
@@ -32,6 +43,8 @@ export class UploadComponent {
   })
 
   uploadFile(){
+    this.uploadForm.disable()
+
     this.showAlert = true
     this.inSubmission = true
     this.showPercentage = true
@@ -42,21 +55,34 @@ export class UploadComponent {
     const clipPath = `clips/${clipFileName}.mp4`
     
     const task = this.storage.upload(clipPath, this.file)
+    const clipRef = this.storage.ref(clipPath)
 
     task.percentageChanges().subscribe(progress => {
       this.percentage = progress as number / 100
     })
 
     task.snapshotChanges().pipe(
-      last()
+      last(),
+      switchMap(() => clipRef.getDownloadURL())
     ).subscribe({
-      next: (snapshot) => {
+      next: (url) => {
+        const clip = {
+          uid: this.user?.uid as string,
+          displayName: this.user?.displayName as string,
+          title: this.uploadForm.controls.title.value,
+          fileName: `${clipFileName}.mp4`,
+          url
+        }
+
+        this.clipService.createClip(clip)
+
         this.alertColor = 'green'
         this.alertMsg = 'Success! Your clip is ready'
         this.showPercentage = false
         this.inSubmission = false
       },
       error: (error) => {
+        this.uploadForm.enable()
         this.alertColor = 'red'
         this.alertMsg = 'Upload failed! Try again later'
         this.inSubmission = true
