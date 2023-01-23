@@ -1,10 +1,6 @@
   
   <!-- Main Content -->
   <section class="container mx-auto my-8 bg-secondary p-6">
-    <app-alert *ngIf="showAlert" [color]="alertColor">
-      <p>{{alertMsg}}</p>
-      <p *ngIf="showPercentage">{{percentage | percent}}</p>
-    </app-alert>
     <div class="rounded relative flex flex-col">
       <div class="font-bold mb-6">Upload Video</div>
 
@@ -30,6 +26,10 @@
 
       <!-- Video Editor -->
       <ng-template #uploadFormCtr >
+        <app-alert *ngIf="showAlert" [color]="alertColor">
+          <p>{{alertMsg}}</p>
+          <p *ngIf="showPercentage">{{percentage | percent}}</p>
+        </app-alert>
           <!-- Form -->
           <form [formGroup]="uploadForm" (ngSubmit)="uploadFile()">
             <!-- Screenshots -->
