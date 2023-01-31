@@ -27,6 +27,7 @@ export class UploadComponent implements OnDestroy{
   showPercentage = false
   user: firebase.User | null = null
   task?: AngularFireUploadTask
+  screenshots: string[] = []
 
   constructor(
     private storage: AngularFireStorage,
@@ -110,14 +111,17 @@ export class UploadComponent implements OnDestroy{
     })
   }
 
-  storeFile(event: Event){
+  async storeFile(event: Event){
     this.isDragOver = false
 
     this.file = (event as DragEvent).dataTransfer ?
      (event as DragEvent).dataTransfer?.files.item(0) ?? null :
      (event.target as HTMLInputElement).files?.item(0) ?? null
     
-     if(!this.file || this.file.type !== 'video/mp4') return;
+    if(!this.file || this.file.type !== 'video/mp4') return;
+    
+    this.screenshots = await this.ffmpegService.getScreenshots(this.file)
+    
     this.uploadForm.controls.title.setValue(
       this.file.name.replace(/\.[^/.]+$/, '')
     )
