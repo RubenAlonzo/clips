@@ -61,4 +61,9 @@
 .video-js .vjs-time-control {
   font-size: 2em;
 }
+
+.vjs_video_3-dimensions {
+  width: 100%;
+  height: auto;
+}
 /* Video.js CSS END */
